@@ -8,8 +8,8 @@ model_path = '/home/isaacnilsonv/Downloads/TREINAMENTO02/runs/treino_painel/trai
 model = YOLO(model_path)
 
 camera_url = "http://10.0.3.14:8080/video"
-# cap = cv2.VideoCapture(camera_url)
 cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(camera_url)
 
 if not cap.isOpened():
     print("Erro: não foi possivel abrir a câmera.")
@@ -101,6 +101,6 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-print("Fechando a arena...")
+print("Fechando a ambiente...")
 cap.release()
 cv2.destroyAllWindows()
