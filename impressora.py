@@ -1,0 +1,88 @@
+import time
+
+class GerenciadorImpressao:
+
+    def __init__(self, segundos_de_espera= 3.0, segundos_para_confirmar=2.0):
+
+        self.segundos_de_espera = segundos_de_espera
+        self.segundos_para_confirmar = segundos_para_confirmar
+
+        self.pode_imprimir = True
+        self.ultima_leitura_impressa = ""
+        self.clooldown_start_time= None
+
+        self.leitura_candidata = None
+        self.candidata_start_time = None
+
+        self.estado_atual_texto = "Pronto"
+        self.estado_atual_cor = (0, 255, 0)
+        
+        print(f"Gerenciador de Impressão iniciado (Confirmação: {self.segundos_para_confirmar}s, Reset: {self.segundos_de_espera}s)")
+    
+    def processar_leitura(self, leitura_estavel):
+
+        if self.pode_imprimir:
+            if leitura_estavel != "":
+                if leitura_estavel != self.ultima_leitura_impressa:
+                    if leitura_estavel != self.leitura_candidata:
+                        self.leitura_candidata = leitura_estavel
+                        self.candidata_start_time = time.time()
+                        self.estado_atual_texto = f"Confirmando: {leitura_estavel}"
+                        self.estado_atual_cor = (255,255,0)
+                    elif self.candidata_start_time is not None:
+                        tempo_decorrido = time.time() - self.candidata_start_time
+
+                        if tempo_decorrido > self.segundos_para_confirmar:
+
+                            self._disparar_impressao(self.leitura_candidata)
+
+                            self.pode_imprimir = False
+                            self.ultima_leitura_impressa = self.leitura_candidata
+                            self.leitura_candidata = None
+                            self.candidata_start_time = None
+                        
+                else:
+                    self.estado_atual_texto = "Ja Impresso: Remova o Painel."
+                    self.estado_atual_cor = (0,165,255)
+            else:
+                if self.leitura_candidata is not None:
+                    print("Confirmação Cancelada: Painel Removido")
+                self.leitura_candidata = None
+                self.candidata_start_time = None
+                self.estado_atual_texto = "Pronto"
+                self.estado_atual_cor = (0,255,0)
+
+        else:
+            self.estado_atual_texto = "Cooldown: REmova o Painel"
+            self.estado_atual_cor = (0,165,2550
+                                     )
+            if leitura_estavel == "":
+                if self.clooldown_start_time is None:
+                    self.clooldown_start_time = time.time()
+                    print("Timer de restet iniciado...")
+
+                tempo_decorrido = time.time() - self.clooldown_start_time
+                if tempo_decorrido > self.segundos_de_espera:
+                    self.pode_imprimir = True
+                    self.clooldown_start_time = None
+                    self.leitura_candidata = None
+                    self.candidata_start_time = None
+                    self.ultima_leitura_impressa = ""
+                    
+                    print("Sistema Rearmado. Pronto para imprimir a próxima leitura")
+
+            else:
+                if self.clooldown_start_time is not None:
+                    print("Reset cancelado (painel Detectado).")
+                self.clooldown_start_time = None
+
+    def _disparar_impressao(self, numero):
+        print("="*30)
+        print(f"Imprimindo Leitura: {numero} !")
+        print("="*30)
+
+    def get_estado_texto(self):
+        return self.estado_atual_texto
+    
+    def get_estado_cor(self):
+        return self.estado_atual_cor

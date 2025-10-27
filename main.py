@@ -1,6 +1,8 @@
 import cv2
 from ultralytics import YOLO
 from collections import Counter
+import time
+from impressora import GerenciadorImpressao
 
 model_path = '/home/isaacnilsonv/Downloads/TREINAMENTO02/runs/treino_painel/train/weights/best.pt'
 model = YOLO(model_path)
@@ -18,6 +20,8 @@ ROI_Y2 = 300
 
 historico_leituras = []
 tamanho_historico = 15
+
+impressora = GerenciadorImpressao(segundos_de_espera=3.0, segundos_para_confirmar=2.0)
 
 while True:
     success, frame = cap.read()
@@ -79,7 +83,14 @@ while True:
         if votos:
             leitura_estavel = votos[0][0]
 
+    impressora.processar_leitura(leitura_estavel)
+
     cv2.putText(frame,leitura_estavel,(50,100), cv2.FONT_HERSHEY_SIMPLEX,3, (0,0,255), 3)
+
+    estado_texto = impressora.get_estado_texto()
+    cor_estado = impressora.get_estado_cor()
+
+    cv2.putText(frame, f"Estado: {estado_texto}", (50,150), cv2.FONT_HERSHEY_SIMPLEX,1,cor_estado,2)
 
     cv2.imshow("Arena Yolov8 - Pressione 'q' para sair", frame)
 
