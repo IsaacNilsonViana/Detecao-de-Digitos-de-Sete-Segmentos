@@ -7,11 +7,15 @@ from impressora import GerenciadorImpressao
 model_path = '/home/isaacnilsonv/Downloads/TREINAMENTO02/runs/treino_painel/train/weights/best.pt'
 model = YOLO(model_path)
 
+camera_url = "http://10.0.3.14:8080/video"
+# cap = cv2.VideoCapture(camera_url)
 cap = cv2.VideoCapture(0)
 
 if not cap.isOpened():
     print("Erro: não foi possivel abrir a câmera.")
     exit()
+
+print("Câmera conectada com sucesso!")
 
 ROI_X1 = 100 
 ROI_Y1 = 150

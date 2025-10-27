@@ -1,4 +1,6 @@
 import time
+import subprocess
+from collections import Counter
 
 class GerenciadorImpressao:
 
@@ -79,6 +81,23 @@ class GerenciadorImpressao:
     def _disparar_impressao(self, numero):
         print("="*30)
         print(f"Imprimindo Leitura: {numero} !")
+
+        # try:
+        #     subprocess.run(
+        #         ['lp'],
+        #         input=numero.encode('utf-8'),
+        #         check=True
+        #     )
+        #     print("Enviado para a fila de impressão local com sucesso.")
+
+        # except subprocess.CalledProcessError as e:
+        #     print(f"[ERRO DE IMPRESSÃO] O comando 'lp' Falhou: {e}")
+        # except FileNotFoundError:
+        #     print("[ERRO DE IMPRESSÃO] comando 'lp' não encontrado.")
+        #     print("Verifique se o sistema de impressão esta instalado")
+        # except Exception as e:
+        #     print(f"[ERRO INESPERADO] ao tentar imprimir: {e}")
+
         print("="*30)
 
     def get_estado_texto(self):
