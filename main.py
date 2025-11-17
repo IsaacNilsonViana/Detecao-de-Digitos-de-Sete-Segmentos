@@ -3,11 +3,12 @@ from ultralytics import YOLO
 from collections import Counter
 import time
 from impressora import GerenciadorImpressao
+import time
 
-model_path = '/home/isaacnilsonv/Downloads/TREINAMENTO02/runs/treino_painel/train/weights/best.pt'
+model_path = '/home/isaacnilsonv/Downloads/TREINAMENTO02/runs/treino_script/experimento_refinamento_100ep/weights/best.pt'
 model = YOLO(model_path)
 
-camera_url = "http://10.0.3.14:8080/video"
+camera_url = "http://10.200.72.29:8080/video"
 cap = cv2.VideoCapture(0)
 # cap = cv2.VideoCapture(camera_url)
 
@@ -28,6 +29,7 @@ tamanho_historico = 15
 impressora = GerenciadorImpressao(segundos_de_espera=3.0, segundos_para_confirmar=2.0)
 
 while True:
+
     success, frame = cap.read()
 
     if not success:
@@ -43,6 +45,7 @@ while True:
 
     deteccoes_frame = []
 
+    inicio = time.time()
     for r in results:
         frame_com_deteccoes = r.boxes
 
@@ -81,11 +84,13 @@ while True:
         historico_leituras.pop(0)
 
     leitura_estavel = ""
-
+    fim = time.time()
     if historico_leituras:
         votos = Counter(historico_leituras).most_common(1)
         if votos:
             leitura_estavel = votos[0][0]
+            if leitura_estavel != "":
+                print(f"{leitura_estavel=}\n{fim - inicio}")
 
     impressora.processar_leitura(leitura_estavel)
 
@@ -96,7 +101,7 @@ while True:
 
     cv2.putText(frame, f"Estado: {estado_texto}", (50,150), cv2.FONT_HERSHEY_SIMPLEX,1,cor_estado,2)
 
-    cv2.imshow("Arena Yolov8 - Pressione 'q' para sair", frame)
+    cv2.imshow("Pressione 'q' para sair", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

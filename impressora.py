@@ -1,6 +1,7 @@
 import time
 import subprocess
 from collections import Counter
+from datetime import datetime
 
 class GerenciadorImpressao:
 
@@ -22,7 +23,8 @@ class GerenciadorImpressao:
         print(f"Gerenciador de Impressão iniciado (Confirmação: {self.segundos_para_confirmar}s, Reset: {self.segundos_de_espera}s)")
     
     def processar_leitura(self, leitura_estavel):
-
+        
+        start = time.time()
         if self.pode_imprimir:
             if leitura_estavel != "":
                 if leitura_estavel != self.ultima_leitura_impressa:
@@ -36,12 +38,13 @@ class GerenciadorImpressao:
 
                         if tempo_decorrido > self.segundos_para_confirmar:
 
-                            self._disparar_impressao(self.leitura_candidata)
+                            self._disparar_impressao(self.leitura_candidata, start)
 
                             self.pode_imprimir = False
                             self.ultima_leitura_impressa = self.leitura_candidata
                             self.leitura_candidata = None
                             self.candidata_start_time = None
+                            
                         
                 else:
                     self.estado_atual_texto = "Ja Impresso: Remova o Painel."
@@ -78,25 +81,63 @@ class GerenciadorImpressao:
                     print("Reset cancelado (painel Detectado).")
                 self.clooldown_start_time = None
 
-    def _disparar_impressao(self, numero):
+    def _disparar_impressao(self, numero, start):
         print("="*30)
         print(f"Imprimindo Leitura: {numero} !")
 
-        # try:
-        #     subprocess.run(
-        #         ['lp'],
-        #         input=numero.encode('utf-8'),
-        #         check=True
-        #     )
-        #     print("Enviado para a fila de impressão local com sucesso.")
+        agora = datetime.now()
+        data = agora.strftime("%d/%m/%Y")
+        hora = agora.strftime("%H:%M:%S")
+        
+        end = time.time()
+        ping = end - start
+        
 
-        # except subprocess.CalledProcessError as e:
-        #     print(f"[ERRO DE IMPRESSÃO] O comando 'lp' Falhou: {e}")
-        # except FileNotFoundError:
-        #     print("[ERRO DE IMPRESSÃO] comando 'lp' não encontrado.")
-        #     print("Verifique se o sistema de impressão esta instalado")
-        # except Exception as e:
-        #     print(f"[ERRO INESPERADO] ao tentar imprimir: {e}")
+        texto_impressao = f"""
+
+Posto Amigao Capinzal
+
+Data: {data}
+Hora: {hora}
+ping: {f"{ping:.5f}"}
+
+==============================
+
+LEITURA DETECTADA: {numero}
+
+==============================
+
+Informacoes Adicionais:
+
+Endereco:
+Ac. Cidade Alta - 2397
+Sao Cristovao,
+Capinzal - SC 
+89665-000
+(49) 3555-3545
+
+
+
+,
+"""
+        
+        comando_corte = b'\x1D\x56\x00'
+
+        try:
+            subprocess.run(
+                ['lp'],
+                input=texto_impressao.encode('utf-8') + comando_corte,
+                check=True
+            )
+            print("Enviado para a fila de impressão local com sucesso.")
+
+        except subprocess.CalledProcessError as e:
+            print(f"[ERRO DE IMPRESSÃO] O comando 'lp' Falhou: {e}")
+        except FileNotFoundError:
+            print("[ERRO DE IMPRESSÃO] comando 'lp' não encontrado.")
+            print("Verifique se o sistema de impressão esta instalado")
+        except Exception as e:
+            print(f"[ERRO INESPERADO] ao tentar imprimir: {e}")
 
         print("="*30)
 
