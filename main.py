@@ -4,9 +4,20 @@ from collections import Counter
 import time
 from impressora import GerenciadorImpressao
 import time
+import sys
+import os
 
-model_path = '/home/isaacnilsonv/Downloads/TREINAMENTO02/runs/treino_script/experimento_refinamento_100ep/weights/best.pt'
-model = YOLO(model_path)
+def resource_path(relative_path):
+    """ Retorna o caminho absoluto para o recurso, funcione ele congelado ou não """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+caminho_modelo = resource_path('runs/treino_script/experimento_refinamento_100ep/weights/best.pt')
+model = YOLO(caminho_modelo)
 
 camera_url = "http://10.200.72.29:8080/video"
 cap = cv2.VideoCapture(0)

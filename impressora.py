@@ -2,6 +2,8 @@ import time
 import subprocess
 from collections import Counter
 from datetime import datetime
+import platform
+import os
 
 class GerenciadorImpressao:
 
@@ -124,12 +126,17 @@ Capinzal - SC
         comando_corte = b'\x1D\x56\x00'
 
         try:
-            subprocess.run(
+            sistema = platform.system()
+            if sistema == "Linux":
+                subprocess.run(
                 ['lp'],
                 input=texto_impressao.encode('utf-8') + comando_corte,
                 check=True
-            )
-            print("Enviado para a fila de impressão local com sucesso.")
+                )
+                print("Enviado para a fila de impressão local com sucesso.")
+            elif sistema == "Windows":
+                print("ATENÇÃO: A impressão direta no Windows requer a lib win32print.")
+                print("O texto a ser impresso seria:", texto_impressao)
 
         except subprocess.CalledProcessError as e:
             print(f"[ERRO DE IMPRESSÃO] O comando 'lp' Falhou: {e}")
